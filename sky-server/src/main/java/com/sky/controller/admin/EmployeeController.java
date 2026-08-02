@@ -3,8 +3,10 @@ package com.sky.controller.admin;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
@@ -13,10 +15,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +42,8 @@ public class EmployeeController {
      */
     @ApiOperation("员工登录")
     @PostMapping("/login")
-    public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO) {
+    public Result<EmployeeLoginVO> login(@RequestBody EmployeeLoginDTO employeeLoginDTO)
+        {
         log.info("员工登录：{}", employeeLoginDTO);
 
         Employee employee = employeeService.login(employeeLoginDTO);
@@ -64,7 +64,7 @@ public class EmployeeController {
                 .build();
 
         return Result.success(employeeLoginVO);
-    }
+        }
 
     /**
      * 退出
@@ -73,9 +73,10 @@ public class EmployeeController {
      */
     @ApiOperation("员工退出")
     @PostMapping("/logout")
-    public Result<String> logout() {
+    public Result<String> logout()
+        {
         return Result.success();
-    }
+        }
 
     /**
      * 新增员工
@@ -84,9 +85,21 @@ public class EmployeeController {
     @ApiOperation("新增员工")
     public Result<String> save(@RequestBody EmployeeDTO employeeDTO)
         {
-            log.info("新增员工，员工数据：{}", employeeDTO);
-            employeeService.save(employeeDTO);
-            return Result.success();
+        log.info("新增员工，员工数据：{}", employeeDTO);
+        employeeService.save(employeeDTO);
+        return Result.success();
+        }
+
+    /**
+     * 员工信息分页查询
+     */
+    @ApiOperation("员工信息分页查询")
+    @GetMapping("/page")
+    public Result<PageResult> page(EmployeePageQueryDTO employeePageQuery)
+        {
+        log.info("分页查询，页码：{}，页大小：{}，姓名：{}",employeePageQuery.getPage(), employeePageQuery.getPageSize(), employeePageQuery.getName());
+        PageResult pageResult = employeeService.page(employeePageQuery);
+        return Result.success(pageResult);
         }
 
 }
