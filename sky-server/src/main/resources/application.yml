@@ -32,5 +32,5 @@ logging:
 sky:
   jwt:
     admin-secret-key: ${sky.jwt.secret-key}
-    admin-ttl: 7200000
+    admin-ttl: 720000000
     admin-token-name: token
