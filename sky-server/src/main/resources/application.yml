@@ -34,3 +34,8 @@ sky:
     admin-secret-key: ${sky.jwt.secret-key}
     admin-ttl: 720000000
     admin-token-name: token
+  alioss:
+    access-key-id: ${sky.alioss.access-key-id}
+    access-key-secret: ${sky.alioss.access-key-secret}
+    bucket-name: ${sky.alioss.bucket-name}
+    endpoint: ${sky.alioss.endpoint}
