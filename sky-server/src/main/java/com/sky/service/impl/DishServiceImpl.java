@@ -169,4 +169,14 @@ public class DishServiceImpl implements DishService {
 
         return dishMapper.list(dish);
         }
+
+    @Override
+    public void updateStatus(Long id, Integer status)
+        {
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
+        dishMapper.updateStatus(dish);
+        }
 }

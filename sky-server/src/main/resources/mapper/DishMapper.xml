@@ -19,20 +19,20 @@
             <if test="categoryId!=null">
                 category_id = #{categoryId},
             </if>
-            <if test="price!=null and price!=''">
+            <if test="price != null">
                 price = #{price},
             </if>
             <if test="image!=null">
                 image = #{image},
             </if>
-            <if test="description!=null">
+            <if test="description!=null and description!=''">
                 description = #{description},
             </if>
-            <if test="status!=null and status!=''">
+            <if test="status != null">
                 status = #{status},
             </if>
             <if test="updateTime!=null">
-                create_time = #{createTime},
+                update_time = #{updateTime},
             </if>
             <if test="updateUser!=null">
                 update_user = #{updateUser},
@@ -50,14 +50,14 @@
         select d.*,c.name as categoryName
         from dish d left join category c on d.category_id = c.id
         <where>
-            <if test="name!=null and name!=''">
-                name like concat('%',#{name},'%')
+            <if test="name != null and name != ''">
+                and d.name like concat('%', #{name}, '%')
             </if>
-            <if test="categoryId!=null and categoryId!=''">
-                and category_id=#{categoryId}
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
             </if>
-            <if test="status!=null and status!=''">
-                and status=#{status}
+            <if test="status != null">
+                and d.status = #{status}
             </if>
         </where>
         order by d.update_time desc

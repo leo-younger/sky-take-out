@@ -2,11 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealDishMapper">
+    <insert id="insertBatch">
+        insert into setmeal_dish
+        (setmeal_id,dish_id,name,price,copies)
+        values
+        <foreach collection="setmealDishes" item="sd" separator=",">
+            (#{sd.setmealId},#{sd.dishId},#{sd.name},#{sd.price},#{sd.copies})
+        </foreach>
+    </insert>
+    <delete id="deleteBatch">
+        delete from setmeal_dish where setmeal_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
 
     <select id="countByDishIds" resultType="java.lang.Long">
         SELECT COUNT(1) FROM setmeal_dish WHERE dish_id IN
         <foreach collection="dishIds" item="dishId" open="(" close=")" separator=",">
             #{dishId}
         </foreach>
+    </select>
+    <select id="countBySetmealId" resultType="java.lang.Long">
+        select count(*) from setmeal_dish s left join dish d on s.dish_id = d.id
+                        where d.status = 0 and s.setmeal_id = #{id}
     </select>
 </mapper>
