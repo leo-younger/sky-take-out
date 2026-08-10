@@ -59,8 +59,7 @@ public class DishServiceImpl implements DishService {
         dishMapper.insert(dish);
         //插入口味数据
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors != null && !flavors.isEmpty())
-        {
+        if (flavors != null && !flavors.isEmpty()) {
             flavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dish.getId());
             });
@@ -143,7 +142,7 @@ public class DishServiceImpl implements DishService {
     @Override
     public void updateWithFlavor(DishDTO dishDTO)
         {
-            //修改菜品数据
+        //修改菜品数据
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.update(dish);
@@ -151,8 +150,7 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishId(dishDTO.getId());
         //插入新的口味数据
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors != null && !flavors.isEmpty())
-        {
+        if (flavors != null && !flavors.isEmpty()) {
             flavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishDTO.getId());
             });
@@ -160,16 +158,16 @@ public class DishServiceImpl implements DishService {
         }
         }
 
-        /**
-         * 根据分类id查询菜品
-         *
-         * @param categoryId 分类id
-         * @return 菜品数据
-         */
+    /**
+     * 根据分类id查询菜品
+     *
+     * @param categoryId 分类id
+     * @return 菜品数据
+     */
     @Override
     public List<Dish> list(Long categoryId)
         {
-            //查询的菜品必须在起售状态下
+        //查询的菜品必须在起售状态下
         Dish dish = Dish.builder()
                 .categoryId(categoryId)
                 .status(StatusConstant.ENABLE)
@@ -191,11 +189,13 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 条件查询菜品和口味
-      * @param dish 菜品对象
+     *
+     * @param dish 菜品对象
      * @return 菜品和口味数据
      */
     @Override
-    public List<DishVO> listWithFlavor(Dish dish) {
+    public List<DishVO> listWithFlavor(Dish dish)
+        {
 
         String key = "dish_" + dish.getCategoryId();
         //先查询redis缓存中是否有对应的菜品数据
@@ -210,7 +210,7 @@ public class DishServiceImpl implements DishService {
 
         for (Dish d : dishList) {
             DishVO dishVO = new DishVO();
-            BeanUtils.copyProperties(d,dishVO);
+            BeanUtils.copyProperties(d, dishVO);
 
             //根据菜品id查询对应的口味
             List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
@@ -222,5 +222,5 @@ public class DishServiceImpl implements DishService {
         redisTemplate.opsForValue().set(key, JSON.toJSONString(list), 60, TimeUnit.MINUTES);
 
         return list;
-    }
+        }
 }
