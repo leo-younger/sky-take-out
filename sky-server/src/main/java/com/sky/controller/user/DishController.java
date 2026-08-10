@@ -25,8 +25,8 @@ public class DishController {
     /**
      * 根据分类id查询菜品
      *
-     * @param categoryId
-     * @return
+     * @param categoryId 分类id
+     * @return 菜品数据
      */
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")

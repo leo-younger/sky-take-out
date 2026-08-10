@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.annotation.AutoDeleteRedis;
 import com.sky.annotation.AutoFill;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;

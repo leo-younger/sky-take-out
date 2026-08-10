@@ -1,7 +1,9 @@
 package com.sky.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.annotation.AutoDeleteRedis;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
@@ -15,15 +17,16 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.sky.constant.MessageConstant.SETMEAL_ON_SALE;
 
@@ -32,16 +35,19 @@ import static com.sky.constant.MessageConstant.SETMEAL_ON_SALE;
 public class DishServiceImpl implements DishService {
 
     @Autowired
-    DishMapper dishMapper;
+    private DishMapper dishMapper;
     @Autowired
-    DishFlavorMapper dishFlavorMapper;
+    private DishFlavorMapper dishFlavorMapper;
     @Autowired
-    SetmealDishMapper setmealDishMapper;
+    private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private RedisTemplate redisTemplate;
+
 
     /**
      * 新增菜品，同时插入菜品对应的口味数据，需要操作两张表：dish、dish_flavor
      *
-     * @param dishDTO
+     * @param dishDTO 菜品数据
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -65,8 +71,8 @@ public class DishServiceImpl implements DishService {
     /**
      * 菜品分页查询
      *
-     * @param dishPageQueryDTO
-     * @return
+     * @param dishPageQueryDTO 菜品分页查询条件
+     * @return 菜品分页查询结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -132,6 +138,7 @@ public class DishServiceImpl implements DishService {
      *
      * @param dishDTO
      */
+    @AutoDeleteRedis
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void updateWithFlavor(DishDTO dishDTO)
@@ -172,6 +179,7 @@ public class DishServiceImpl implements DishService {
         }
 
     @Override
+    @AutoDeleteRedis
     public void updateStatus(Long id, Integer status)
         {
         Dish dish = Dish.builder()
@@ -188,21 +196,31 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public List<DishVO> listWithFlavor(Dish dish) {
-    List<Dish> dishList = dishMapper.list(dish);
 
-    List<DishVO> dishVOList = new ArrayList<>();
+        String key = "dish_" + dish.getCategoryId();
+        //先查询redis缓存中是否有对应的菜品数据
+        String json = (String) redisTemplate.opsForValue().get(key);
+        //如果存在，直接返回
+        if (json != null && !json.isEmpty()) {
+            return JSON.parseArray(json, DishVO.class);
+        }
+        //如果不存在，再查询数据库中是否有对应的菜品数据
+        List<DishVO> list = new ArrayList<>();
+        List<Dish> dishList = dishMapper.list(dish);
 
-    for (Dish d : dishList) {
-        DishVO dishVO = new DishVO();
-        BeanUtils.copyProperties(d,dishVO);
+        for (Dish d : dishList) {
+            DishVO dishVO = new DishVO();
+            BeanUtils.copyProperties(d,dishVO);
 
-        //根据菜品id查询对应的口味
-        List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
+            //根据菜品id查询对应的口味
+            List<DishFlavor> flavors = dishFlavorMapper.getByDishId(d.getId());
 
-        dishVO.setFlavors(flavors);
-        dishVOList.add(dishVO);
-    }
+            dishVO.setFlavors(flavors);
+            list.add(dishVO);
+        }
+        //将查询结果存入redis缓存，使用fastjson序列化，有效期60分钟
+        redisTemplate.opsForValue().set(key, JSON.toJSONString(list), 60, TimeUnit.MINUTES);
 
-    return dishVOList;
+        return list;
     }
 }
