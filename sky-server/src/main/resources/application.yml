@@ -46,8 +46,16 @@ sky:
     admin-secret-key: ${sky.jwt.secret-key}
     admin-ttl: 720000000
     admin-token-name: token
+    user-secret-key: ${sky.jwt.user-secret-key}
+    user-ttl: 720000000
+    user-token-name: authentication
+
   alioss:
     access-key-id: ${sky.alioss.access-key-id}
     access-key-secret: ${sky.alioss.access-key-secret}
     bucket-name: ${sky.alioss.bucket-name}
     endpoint: ${sky.alioss.endpoint}
+
+  wechat:
+    appid: ${sky.wechat.appid}
+    secret: ${sky.wechat.secret}
