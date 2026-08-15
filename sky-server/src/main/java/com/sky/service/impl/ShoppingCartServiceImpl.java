@@ -16,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * @author Young
@@ -65,7 +68,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
             cart.setNumber(1);
             cart.setCreateTime(LocalDateTime.now());
-            shoppingCartMapper.add(cart);
+            shoppingCartMapper.insertBatch(Collections.singletonList(cart));
         } else {
             //如果存在则更新数量
             ShoppingCart shoppingCart = list.get(0);

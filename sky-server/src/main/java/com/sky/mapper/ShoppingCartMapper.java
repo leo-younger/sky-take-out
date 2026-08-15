@@ -31,11 +31,9 @@ public interface ShoppingCartMapper {
 
     /**
      * 添加购物车
-     * @param cart 购物车对象
+     * @param list 购物车对象列表
      */
-    @Insert("insert into shopping_cart (name, image, user_id, dish_id, setmeal_id, dish_flavor, number, amount, create_time) " +
-            "values (#{name}, #{image}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{createTime});")
-    void add(ShoppingCart cart);
+    void insertBatch(List<ShoppingCart> list);
 
     /**
      * 清空购物车
