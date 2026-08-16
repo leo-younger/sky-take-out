@@ -1,5 +1,7 @@
 package com.sky.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
@@ -25,6 +27,7 @@ import com.sky.service.OrderService;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.sky.utils.WeChatPayUtil;
@@ -56,6 +56,16 @@ public class OrderServiceImpl implements OrderService {
     private AddressBookMapper addressBookMapper;
     @Autowired
     private ShoppingCartMapper shoppingCartMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    /**
+     * 1表示来单提醒，2表示催单提醒
+     */
+    private static final int COME_ORDER = 1;
+    private static final int URGE_ORDER = 2;
 
     /**
      * 提交订单
@@ -65,7 +75,7 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO)
+    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws JsonProcessingException
         {
         //1.异常处理
         //1.1 地址簿id不存在
@@ -111,7 +121,14 @@ public class OrderServiceImpl implements OrderService {
         orderDetailMapper.insertBatch(orderDetails);
         //4. 清空购物车
         shoppingCartMapper.clean(BaseContext.getCurrentId());
-        //5. 封装VO返回结果
+        //5. 通过websocket像商家客户端推送消息，JSON格式，包含属性type，orderId，content
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 1);
+        map.put("orderId", orders.getId());
+        map.put("content", "订单号："+orders.getNumber());
+        String json = objectMapper.writeValueAsString(map);
+        webSocketServer.sendToAllClient(json);
+        //6. 封装VO返回结果
         return OrderSubmitVO.builder()
                 .id(orders.getId())
                 .orderNumber(orders.getNumber())
@@ -121,6 +138,12 @@ public class OrderServiceImpl implements OrderService {
 
         }
 
+        /**
+         * 用户端历史订单分页查询
+         *
+         * @param ordersPageQueryDTO 订单分页查询条件
+         * @return 订单分页查询结果
+         */
     @Override
     public PageResult historyOrders(OrdersPageQueryDTO ordersPageQueryDTO)
         {
@@ -194,7 +217,7 @@ public class OrderServiceImpl implements OrderService {
         }
         if (status.equals(Orders.TO_BE_CONFIRMED)) {
             WeChatPayUtil weChatPayUtil = new WeChatPayUtil();
-            //调用微信支付退款接口
+            //调用微信支付退款接口（未开发）
             weChatPayUtil.refund(
                     orders.getNumber(), //商户订单号
                     orders.getNumber(), //商户退款单号
@@ -230,7 +253,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
     /**
-     * 条件查询订单
+     * 条件查询订单（商家端）
      *
      * @param ordersPageQueryDTO 订单分页查询条件
      * @return 订单分页查询结果

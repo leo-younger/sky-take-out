@@ -1,5 +1,6 @@
 package com.sky.controller.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.result.PageResult;
@@ -30,7 +31,7 @@ public class OrderController {
      */
     @ApiOperation("提交订单")
     @PostMapping("/submit")
-    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO)
+    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) throws JsonProcessingException
         {
         log.info("用户提交订单：{}", ordersSubmitDTO);
         OrderSubmitVO orderSubmitVO = orderService.submit(ordersSubmitDTO);

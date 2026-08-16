@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersRejectionDTO;
@@ -20,7 +21,7 @@ public interface OrderService {
      * @param ordersSubmitDTO 订单提交需要的动词数据
      * @return 订单确认页面需要的动词数据
      */
-    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO);
+    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws JsonProcessingException;
 
     /**
      * 订单查询
