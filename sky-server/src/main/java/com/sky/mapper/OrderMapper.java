@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -41,9 +42,28 @@ public interface OrderMapper {
     Orders getById(Long id);
 
     /**
-     * 根据ID更新订单
+     * 更新订单信息
      *
      * @param orders 订单数据
      */
     void update(Orders orders);
+
+    /**
+     * 根据状态统计订单数量
+     *
+     * @param status 订单状态
+     * @return 订单数量
+     */
+    @Select("SELECT COUNT(*) FROM orders WHERE status = #{status}")
+    Integer countStatus(Integer status);
+
+    /**
+     * 根据状态和订单时间查询订单
+     *
+     * @param status 订单状态
+     * @param time 订单时间
+     * @return 订单
+     */
+    @Select("SELECT * FROM orders WHERE status = #{status} AND order_time < #{time}")
+    List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
 }

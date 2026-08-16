@@ -34,6 +34,9 @@
             <if test="deliveryStatus != null">
                 delivery_status = #{deliveryStatus},
             </if>
+            <if test="deliveryTime != null">
+                delivery_time = #{deliveryTime},
+            </if>
         </set>
         where id = #{id}
     </update>
@@ -45,7 +48,9 @@
                delivery_time, pack_amount, tableware_number, tableware_status
         from orders
         <where>
-            user_id = #{userId}
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
             <if test="status != null">
                 and status = #{status}
             </if>

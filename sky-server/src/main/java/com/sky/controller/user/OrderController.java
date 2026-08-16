@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
+@RestController("userOrderController")
 @RequestMapping("/user/order")
 @Slf4j
 @Api(tags = "用户订单相关接口")
@@ -79,7 +79,7 @@ public class OrderController {
         public Result cancel(@PathVariable Long id) throws Exception
             {
             log.info("取消订单：{}", id);
-            orderService.cancel(id);
+            orderService.userCancelById(id);
             return Result.success();
         }
 
