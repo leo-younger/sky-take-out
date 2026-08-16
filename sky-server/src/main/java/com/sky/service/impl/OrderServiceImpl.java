@@ -125,7 +125,7 @@ public class OrderServiceImpl implements OrderService {
         Map<String, Object> map = new HashMap<>();
         map.put("type", 1);
         map.put("orderId", orders.getId());
-        map.put("content", "订单号："+orders.getNumber());
+        map.put("content", "订单号：" + orders.getNumber());
         String json = objectMapper.writeValueAsString(map);
         webSocketServer.sendToAllClient(json);
         //6. 封装VO返回结果
@@ -138,12 +138,12 @@ public class OrderServiceImpl implements OrderService {
 
         }
 
-        /**
-         * 用户端历史订单分页查询
-         *
-         * @param ordersPageQueryDTO 订单分页查询条件
-         * @return 订单分页查询结果
-         */
+    /**
+     * 用户端历史订单分页查询
+     *
+     * @param ordersPageQueryDTO 订单分页查询条件
+     * @return 订单分页查询结果
+     */
     @Override
     public PageResult historyOrders(OrdersPageQueryDTO ordersPageQueryDTO)
         {
@@ -455,5 +455,29 @@ public class OrderServiceImpl implements OrderService {
         orders.setStatus(Orders.COMPLETED);
         orders.setDeliveryTime(LocalDateTime.now());
         orderMapper.update(orders);
+        }
+
+    /**
+     * 催单
+     *
+     * @param id 订单id
+     */
+    @Override
+    public void reminder(Long id) throws JsonProcessingException
+        {
+        //根据id查订单号
+        Orders orders = orderMapper.getById(id);
+        if (orders == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        log.info("催单：{}", id);
+        //通过websocket像商家客户端推送消息，JSON格式，包含属性type，orderId，content
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", URGE_ORDER);
+        map.put("orderId", id);
+        map.put("content", "订单号：" + orders.getNumber());
+        //格式转换转JSON格式
+        String str = objectMapper.writeValueAsString(map);
+        webSocketServer.sendToAllClient(str);
         }
 }

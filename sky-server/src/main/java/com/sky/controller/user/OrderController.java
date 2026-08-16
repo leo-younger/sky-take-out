@@ -98,4 +98,19 @@ public class OrderController {
             orderService.again(id);
             return Result.success();
         }
+
+        /**
+         * 客户催单
+         *
+         * @param id 订单id
+         * @return 催单结果
+         */
+        @ApiOperation("客户催单")
+        @GetMapping("/reminder/{id}")
+        public Result reminder(@PathVariable Long id) throws JsonProcessingException
+            {
+            log.info("催单：{}", id);
+            orderService.reminder(id);
+            return Result.success();
+        }
 }
