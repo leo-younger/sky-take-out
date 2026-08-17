@@ -8,8 +8,13 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import com.sky.dto.DailyTurnoverDTO;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Young
@@ -66,4 +71,12 @@ public interface OrderMapper {
      */
     @Select("SELECT * FROM orders WHERE status = #{status} AND order_time < #{time}")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
+
+    /**
+     * 按天分组统计已完成订单的营业额
+     *
+     * @param map 查询条件（beginTime, endTime, status）
+     * @return 每日营业额列表
+     */
+    List<DailyTurnoverDTO> sumGroupByDate(Map<String, Object> map);
 }
