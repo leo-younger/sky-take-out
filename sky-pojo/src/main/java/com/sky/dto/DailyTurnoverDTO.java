@@ -15,7 +15,13 @@ import java.time.LocalDate;
 @Builder
 public class DailyTurnoverDTO implements Serializable {
 
+    /**
+     * 订单日期
+     */
     private LocalDate orderDate;
 
+    /**
+     * 当日营业额
+     */
     private BigDecimal dailyAmount;
 }

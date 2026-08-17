@@ -350,6 +350,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void confirm(Long id)
         {
+        //根据id查询订单
+        Orders orderDb = orderMapper.getById(id);
+        if (orderDb == null || !orderDb.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
         //修改对应id订单状态
         Orders order = new Orders();
         order.setStatus(Orders.CONFIRMED);
