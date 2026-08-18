@@ -39,7 +39,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * @param registry
      */
     @Override
-    protected void addInterceptors(InterceptorRegistry registry) {
+    protected void addInterceptors(InterceptorRegistry registry)
+        {
         log.info("开始注册自定义拦截器...");
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
@@ -50,70 +51,78 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/user/user/login")
                 .excludePathPatterns("/user/shop/status");
 
-    }
+        }
 
     /**
      * 通过knife4j生成接口文档
+     *
      * @return
      */
     @Bean
-    public Docket docket1() {
+    public Docket docket1()
+        {
         ApiInfo apiInfo = new ApiInfoBuilder()
                 .title("苍穹外卖项目接口文档")
                 .version("2.0")
                 .description("苍穹外卖项目接口文档")
                 .build();
-    return new Docket(DocumentationType.SWAGGER_2)
-            .groupName("管理端接口")
-            .apiInfo(apiInfo)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))
-            .paths(PathSelectors.any())
-            .build();
-    }
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("管理端接口")
+                .apiInfo(apiInfo)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.admin"))
+                .paths(PathSelectors.any())
+                .build();
+        }
 
     /**
      * 通过knife4j生成接口文档
+     *
      * @return
      */
     @Bean
-    public Docket docket2() {
-    ApiInfo apiInfo = new ApiInfoBuilder()
-            .title("苍穹外卖项目接口文档")
-            .version("2.0")
-            .description("苍穹外卖项目接口文档")
-            .build();
-    return new Docket(DocumentationType.SWAGGER_2)
-            .groupName("用户端接口")
-            .apiInfo(apiInfo)
-            .select()
-            .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))
-            .paths(PathSelectors.any())
-            .build();
-    }
+    public Docket docket2()
+        {
+        ApiInfo apiInfo = new ApiInfoBuilder()
+                .title("苍穹外卖项目接口文档")
+                .version("2.0")
+                .description("苍穹外卖项目接口文档")
+                .build();
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName("用户端接口")
+                .apiInfo(apiInfo)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.sky.controller.user"))
+                .paths(PathSelectors.any())
+                .build();
+        }
+
     /**
      * 设置静态资源映射
+     *
      * @param registry
      */
     @Override
-    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+    protected void addResourceHandlers(ResourceHandlerRegistry registry)
+        {
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
-    }
+        }
 
     /**
      * 扩展消息转换器，将String类型转换成JSON
+     *
      * @param converters
      */
     @Override
     protected void extendMessageConverters(List<HttpMessageConverter<?>> converters)
         {
-            log.info("扩展消息转换器...");
-            //创建消息转换器对象
+        log.info("扩展消息转换器...");
+        //创建消息转换器对象
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
         //设置对象转换器，底层使用Jackson将Java对象转为json
         converter.setObjectMapper(new JacksonObjectMapper());
         //将上面的消息转换器对象追加到mvc框架的转换器集合中
-        converters.add(0,converter);
+        converters.add(0, converter);
         }
 }

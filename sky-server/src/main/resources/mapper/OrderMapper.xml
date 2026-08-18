@@ -88,4 +88,21 @@
         </where>
         group by date(order_time)
     </select>
+
+    <select id="countByMap" resultType="com.sky.dto.OrderReportDTO">
+        select date(order_time) as orderDate,count(*) as orderCount
+        from orders
+        <where>
+            <if test="beginTime != null">
+                and order_time &gt;= #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt;= #{endTime}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        group by date(order_time)
+    </select>
 </mapper>

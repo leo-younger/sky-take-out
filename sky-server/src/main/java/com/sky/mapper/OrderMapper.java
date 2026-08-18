@@ -1,5 +1,6 @@
 package com.sky.mapper;
 
+import com.sky.dto.OrderReportDTO;
 import com.sky.dto.OrdersDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
@@ -79,4 +80,12 @@ public interface OrderMapper {
      * @return 每日营业额列表
      */
     List<DailyTurnoverDTO> sumGroupByDate(Map<String, Object> map);
+
+    /**
+     * 根据条件统计订单数量
+     *
+     * @param map 查询条件
+     * @return 订单数量
+     */
+    List<OrderReportDTO> countByMap(Map<String, Object> map);
 }
