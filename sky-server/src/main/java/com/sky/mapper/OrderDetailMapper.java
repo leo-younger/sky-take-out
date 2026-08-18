@@ -1,9 +1,11 @@
 package com.sky.mapper;
 
+import com.sky.dto.Top10DTO;
 import com.sky.entity.OrderDetail;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Young

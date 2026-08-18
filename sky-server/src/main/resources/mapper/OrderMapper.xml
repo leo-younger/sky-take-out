@@ -105,4 +105,40 @@
         </where>
         group by date(order_time)
     </select>
+
+    <select id="getByStatusAndOrderTime" resultType="com.sky.entity.Orders">
+        select *
+        from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="endTime != null">
+                and order_time &lt; #{endTime}
+            </if>
+            <if test="beginTime != null">
+                and order_time &gt; #{beginTime}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTop10" resultType="com.sky.dto.Top10DTO">
+        select od.name,sum(od.number) as number
+        from orders o,order_detail od
+        <where>
+            <if test="status != null">
+                and o.status = #{status}
+            </if>
+            <if test="endTime != null">
+                and o.order_time &lt;= #{endTime}
+            </if>
+            <if test="beginTime != null">
+                and o.order_time &gt;= #{beginTime}
+            </if>
+            and o.id = od.order_id
+        </where>
+        group by od.name
+        order by number desc
+        limit 10
+    </select>
 </mapper>

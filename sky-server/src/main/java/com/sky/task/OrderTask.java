@@ -8,7 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -31,7 +33,10 @@ public class OrderTask {
         log.info("处理超时订单");
         //获取超时订单
         LocalDateTime time = LocalDateTime.now().plusMinutes(-15);
-        List<Orders> list = orderMapper.getByStatusAndOrderTime(Orders.PENDING_PAYMENT, time);
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", Orders.PENDING_PAYMENT);
+        map.put("endTime", time);
+        List<Orders> list = orderMapper.getByStatusAndOrderTime(map);
         //遍历订单列表，将订单状态改为为已取消，设置取消时间为当前时间，取消原因为订单超时未支付，系统自动取消
         for (Orders orders : list)
         {
@@ -51,7 +56,10 @@ public class OrderTask {
         {
         log.info("处理一直处在配送中的订单");
         LocalDateTime time = LocalDateTime.now().plusMinutes(-60);
-        List<Orders> list = orderMapper.getByStatusAndOrderTime(Orders.DELIVERY_IN_PROGRESS, time);
+        Map<String, Object> map = new HashMap<>();
+        map.put("status", Orders.DELIVERY_IN_PROGRESS);
+        map.put("endTime", time);
+        List<Orders> list = orderMapper.getByStatusAndOrderTime(map);
         if (list != null && !list.isEmpty())
         {
             for (Orders orders : list)

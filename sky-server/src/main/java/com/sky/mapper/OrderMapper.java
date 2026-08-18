@@ -1,15 +1,11 @@
 package com.sky.mapper;
 
-import com.sky.dto.OrderReportDTO;
-import com.sky.dto.OrdersDTO;
-import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.*;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
-
-import com.sky.dto.DailyTurnoverDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -66,12 +62,10 @@ public interface OrderMapper {
     /**
      * 根据状态和订单时间查询订单
      *
-     * @param status 订单状态
-     * @param time 订单时间
+      * @param map 查询条件（status, endTime, beginTime）
      * @return 订单
      */
-    @Select("SELECT * FROM orders WHERE status = #{status} AND order_time < #{time}")
-    List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime time);
+    List<Orders> getByStatusAndOrderTime(Map<String, Object> map);
 
     /**
      * 按天分组统计已完成订单的营业额
@@ -88,4 +82,12 @@ public interface OrderMapper {
      * @return 订单数量
      */
     List<OrderReportDTO> countByMap(Map<String, Object> map);
+
+    /**
+     * 根据订单id列表查询Top10数据
+     *
+     * @param map 订单id列表 map
+     * @return Top10数据列表
+     */
+    List<Top10DTO> getTop10(Map<String, Object> map);
 }
