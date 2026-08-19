@@ -17,12 +17,16 @@ import com.sky.vo.SetmealOverViewVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Young
+ */
 @Service
 @Slf4j
 public class WorkspaceServiceImpl implements WorkspaceService {
@@ -38,12 +42,14 @@ public class WorkspaceServiceImpl implements WorkspaceService {
 
     /**
      * 根据时间段统计营业数据
+     *
      * @param begin 开始时间
-     * @param end 结束时间
+     * @param end   结束时间
      * @return 返回营业数据
      */
     @Override
-    public BusinessDataVO getBusinessData(LocalDateTime begin, LocalDateTime end) {
+    public BusinessDataVO getBusinessData(LocalDateTime begin, LocalDateTime end)
+        {
         /*
           营业额：当日已完成订单的总金额
           有效订单：当日已完成订单的数量
@@ -53,36 +59,57 @@ public class WorkspaceServiceImpl implements WorkspaceService {
          */
 
         Map<String, Object> map = new HashMap<>();
-        map.put("beginTime",begin);
-        map.put("endTime",end);
+        map.put("beginTime", begin);
+        map.put("endTime", end);
 
         //查询总订单数
         List<OrderReportDTO> totalOrderCountList = orderMapper.countByMap(map);
-        Integer totalOrderCount = (totalOrderCountList != null && !totalOrderCountList.isEmpty() && totalOrderCountList.get(0).getOrderCount() != null) ? totalOrderCountList.get(0).getOrderCount().intValue() : 0;
-
+        int totalOrderCount = 0;
+        //遍历集合求总订单数
+        if (totalOrderCountList != null) {
+            for (OrderReportDTO orderReportDTO : totalOrderCountList) {
+                totalOrderCount += orderReportDTO.getOrderCount() != null ? orderReportDTO.getOrderCount().intValue() : 0;
+            }
+        }
         map.put("status", Orders.COMPLETED);
         //营业额
         List<DailyTurnoverDTO> dailyTurnoverList = orderMapper.sumGroupByDate(map);
-        Double turnover = (dailyTurnoverList != null && !dailyTurnoverList.isEmpty() && dailyTurnoverList.get(0).getDailyAmount() != null) ? dailyTurnoverList.get(0).getDailyAmount().doubleValue() : 0.0;
-
+        double turnover = 0.0;
+        //遍历集合求总营业额
+        if (dailyTurnoverList != null) {
+            for (DailyTurnoverDTO dailyTurnoverDTO : dailyTurnoverList) {
+                turnover += dailyTurnoverDTO.getDailyAmount() != null ? dailyTurnoverDTO.getDailyAmount().doubleValue() : 0.0;
+            }
+        }
         //有效订单数
         List<OrderReportDTO> validOrderCountList = orderMapper.countByMap(map);
-        Integer validOrderCount = (validOrderCountList != null && !validOrderCountList.isEmpty() && validOrderCountList.get(0).getOrderCount() != null) ? validOrderCountList.get(0).getOrderCount().intValue() : 0;
-
-        Double unitPrice = 0.0;
-
-        Double orderCompletionRate = 0.0;
-        if(totalOrderCount != 0 && validOrderCount != 0){
+        int validOrderCount = 0;
+        //遍历集合求总有效订单数
+        if (validOrderCountList != null) {
+            for (OrderReportDTO orderReportDTO : validOrderCountList) {
+                validOrderCount += orderReportDTO.getOrderCount() != null ? orderReportDTO.getOrderCount().intValue() : 0;
+            }
+        }
+        //客单价
+        double unitPrice = 0.0;
+        //订单完成率
+        double orderCompletionRate = 0.0;
+        if (totalOrderCount != 0 && validOrderCount != 0) {
             //订单完成率
-            orderCompletionRate = validOrderCount.doubleValue() / totalOrderCount;
+            orderCompletionRate = (double) validOrderCount / totalOrderCount;
             //平均客单价
             unitPrice = turnover / validOrderCount;
         }
 
         //新增用户数
         List<UserCountDTO> newUsersList = userMapper.countByMap(map);
-        Integer newUsers = (newUsersList != null && !newUsersList.isEmpty() && newUsersList.get(0).getCount() != null) ? newUsersList.get(0).getCount().intValue() : 0;
-
+        int newUsers = 0;
+        //遍历集合求总新增用户数
+        if (newUsersList != null) {
+            for (UserCountDTO userCountDTO : newUsersList) {
+                newUsers += userCountDTO.getCount() != null ? userCountDTO.getCount().intValue() : 0;
+            }
+        }
         return BusinessDataVO.builder()
                 .turnover(turnover)
                 .validOrderCount(validOrderCount)
@@ -90,7 +117,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .unitPrice(unitPrice)
                 .newUsers(newUsers)
                 .build();
-    }
+        }
 
 
     /**
@@ -99,7 +126,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return 返回今日订单管理数据
      */
     @Override
-    public OrderOverViewVO getOrderOverView() {
+    public OrderOverViewVO getOrderOverView()
+        {
         Map<String, Object> map = new HashMap<>();
         map.put("beginTime", LocalDateTime.now().with(LocalTime.MIN));
         map.put("endTime", LocalDateTime.now().with(LocalTime.MAX));
@@ -109,7 +137,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         List<OrderReportDTO> waitingOrders = orderMapper.countByMap(map);
         Integer waitingOrdersCount = (waitingOrders != null && !waitingOrders.isEmpty() && waitingOrders.get(0).getOrderCount() != null) ? waitingOrders.get(0).getOrderCount().intValue() : 0;
 
-    //待派送
+        //待派送
         map.put("status", Orders.CONFIRMED);
         List<OrderReportDTO> deliveredOrders = orderMapper.countByMap(map);
         Integer deliveredOrdersCount = (deliveredOrders != null && !deliveredOrders.isEmpty() && deliveredOrders.get(0).getOrderCount() != null) ? deliveredOrders.get(0).getOrderCount().intValue() : 0;
@@ -123,8 +151,8 @@ public class WorkspaceServiceImpl implements WorkspaceService {
         List<OrderReportDTO> cancelledOrders = orderMapper.countByMap(map);
         Integer cancelledOrdersCount = (cancelledOrders != null && !cancelledOrders.isEmpty() && cancelledOrders.get(0).getOrderCount() != null) ? cancelledOrders.get(0).getOrderCount().intValue() : 0;
 
-        //全部订单
-        map.put("status", null);
+        //全部订单（移除status条件，查询所有状态订单）
+        map.remove("status");
         List<OrderReportDTO> allOrders = orderMapper.countByMap(map);
         Integer allOrdersCount = (allOrders != null && !allOrders.isEmpty() && allOrders.get(0).getOrderCount() != null) ? allOrders.get(0).getOrderCount().intValue() : 0;
 
@@ -135,7 +163,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .cancelledOrders(cancelledOrdersCount)
                 .allOrders(allOrdersCount)
                 .build();
-    }
+        }
 
     /**
      * 查询菜品总览
@@ -143,8 +171,9 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return 返回菜品总览数据
      */
     @Override
-    public DishOverViewVO getDishOverView() {
-        Map map = new HashMap();
+    public DishOverViewVO getDishOverView()
+        {
+        Map<String, Object> map = new HashMap<>();
         map.put("status", StatusConstant.ENABLE);
         Integer sold = dishMapper.countByMap(map);
 
@@ -155,7 +184,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .sold(sold)
                 .discontinued(discontinued)
                 .build();
-    }
+        }
 
     /**
      * 查询套餐总览
@@ -163,8 +192,9 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return 返回套餐总览数据
      */
     @Override
-    public SetmealOverViewVO getSetmealOverView() {
-        Map map = new HashMap();
+    public SetmealOverViewVO getSetmealOverView()
+        {
+        Map<String, Object> map = new HashMap<>();
         map.put("status", StatusConstant.ENABLE);
         Integer sold = setmealMapper.countByMap(map);
 
@@ -175,5 +205,5 @@ public class WorkspaceServiceImpl implements WorkspaceService {
                 .sold(sold)
                 .discontinued(discontinued)
                 .build();
-    }
+        }
 }
