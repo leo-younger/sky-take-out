@@ -13,12 +13,14 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface DishMapper {
 
     /**
      * 根据分类id查询菜品数量
+     *
      * @param categoryId
      * @return
      */
@@ -27,6 +29,7 @@ public interface DishMapper {
 
     /**
      * 插入菜品数据
+     *
      * @param dish
      */
     @AutoFill(value = OperationType.INSERT)
@@ -34,12 +37,14 @@ public interface DishMapper {
 
     /**
      * 菜品分页查询
+     *
      * @return
      */
     List<DishVO> page(DishPageQueryDTO dishPageQueryDTO);
 
     /**
      * 根据id查询菜品和对应的口味数据
+     *
      * @param id 菜品id
      * @return 菜品对象
      */
@@ -48,6 +53,7 @@ public interface DishMapper {
 
     /**
      * 根据id删除菜品数据
+     *
      * @param id 菜品id
      */
     @Delete("delete from dish where id = #{id}")
@@ -55,12 +61,14 @@ public interface DishMapper {
 
     /**
      * 批量删除菜品
+     *
      * @param dishIds 菜品id集合
      */
     void deleteBatch(List<Long> dishIds);
 
     /**
      * 根据id查询菜品和口味数据
+     *
      * @param id 菜品id
      * @return 菜品对象
      */
@@ -69,6 +77,7 @@ public interface DishMapper {
 
     /**
      * 修改菜品数据
+     *
      * @param dish 菜品对象
      */
     @AutoFill(value = OperationType.UPDATE)
@@ -76,16 +85,26 @@ public interface DishMapper {
 
     /**
      * 根据分类id查询菜品
+     *
      * @param dish 菜品对象(包含状态和分类id)
      * @return 菜品列表
      */
-    List<Dish> list(Dish  dish);
+    List<Dish> list(Dish dish);
 
     /**
      * 修改菜品起售停售状态
+     *
      * @param dish 菜品对象
      */
     @AutoFill(value = OperationType.UPDATE)
     @Update("update dish set status = #{status} where id = #{id}")
     void updateStatus(Dish dish);
+
+    /**
+     * 根据条件统计菜品数量
+     *
+     * @param map 查询条件
+     * @return 菜品数量
+     */
+    Integer countByMap(Map map);
 }
